@@ -185,11 +185,3 @@ MIT (or your preferred license). Add a `LICENSE` file if you want open-source di
 ## Attributions
 
 * Repo: `pamungkaski/clean-arc-eg` (structure and filenames). ([GitHub][1])
-
-```
-
-Want me to open a PR and drop this in as `README.md`?
-::contentReference[oaicite:2]{index=2}
-```
-
-[1]: https://github.com/pamungkaski/clean-arc-eg "GitHub - pamungkaski/clean-arc-eg"
