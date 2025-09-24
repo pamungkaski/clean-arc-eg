@@ -11,7 +11,13 @@ type Usecase struct {
 }
 
 type BudgetRepository interface {
-	GetAllBudget() ([]Budget, error)
+	GetAllBudget(ctx context.Context) ([]Budget, error)
+}
+
+func NewUsecase(repo BudgetRepository) *Usecase {
+	return &Usecase{
+		repo: repo,
+	}
 }
 
 type Budget struct {
@@ -37,7 +43,7 @@ func (u *Usecase) GetAllBudget(ctx context.Context, req GetAllBudgetRequest) (Ge
 		}
 	}
 
-	budgets, err := u.repo.GetAllBudget()
+	budgets, err := u.repo.GetAllBudget(ctx)
 	if err != nil {
 		return GetAllBudgetResponse{}, err
 	}

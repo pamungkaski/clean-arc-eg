@@ -2,6 +2,7 @@ package src
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -36,13 +37,19 @@ func NewBudgetMongo(db *mongo.Database, collectionName string) *BudgetMongo {
 	return &BudgetMongo{coll: db.Collection(collectionName)}
 }
 
-func (b *BudgetMongo) GetAllBudget() ([]Budget, error) {
+func (b *BudgetMongo) GetAllBudget(ctx context.Context) ([]Budget, error) {
 	if b.coll == nil {
 		return nil, mongo.ErrClientDisconnected
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	if err := ctx.Err(); err != nil {
+		if errors.Is(err, context.Canceled) {
+			return nil, errors.New("context cancelled")
+		}
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, errors.New("timed out")
+		}
+	}
 
 	cur, err := b.coll.Find(ctx, bson.D{}) // empty filter = all docs
 	if err != nil {
