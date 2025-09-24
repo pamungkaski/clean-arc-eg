@@ -1,4 +1,3 @@
-// main.go
 package main
 
 import (
@@ -7,15 +6,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
-
 	"syscall"
+	"time"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	// adjust module path if your package name differs
 	"ki.com/clean-arc-example/src"
 )
 
