@@ -18,6 +18,14 @@ type BudgerUsecase interface {
 	GetAllBudget(ctx context.Context, req src.GetAllBudgetRequest) (src.GetAllBudgetResponse, error)
 }
 
+type BudgetResponse struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Amount      float64   `json:"amount"`
+	Currency    string    `json:"currency"`
+	LastUpdated time.Time `json:"last_updated"`
+}
+
 func NewBudgetHTTP(uc *src.Usecase) *BudgetHTTP {
 	return &BudgetHTTP{uc: uc}
 }
@@ -59,12 +67,23 @@ func (h *BudgetHTTP) GetAllBudgets(w http.ResponseWriter, r *http.Request) {
 	// Good practice for APIs: explicit caching policy (adjust as needed)
 	w.Header().Set("Cache-Control", "no-store")
 	// Optional: Add a response timestamp
+
+	budgetResp := make([]BudgetResponse, 0, len(resp.Budgets))
+	for _, b := range resp.Budgets {
+		budgetResp = append(budgetResp, BudgetResponse{
+			ID:          b.ID,
+			Name:        b.Name,
+			Amount:      b.Amount,
+			Currency:    b.Currency,
+			LastUpdated: b.LastUpdated,
+		})
+	}
 	type out struct {
-		Budgets   []src.Budget `json:"budgets"`
-		Timestamp time.Time    `json:"timestamp"`
+		Budgets   []BudgetResponse `json:"budgets"`
+		Timestamp time.Time        `json:"timestamp"`
 	}
 	_ = json.NewEncoder(w).Encode(out{
-		Budgets:   resp.Budgets,
+		Budgets:   budgetResp,
 		Timestamp: time.Now(),
 	})
 }
