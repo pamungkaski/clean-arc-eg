@@ -12,6 +12,8 @@ import (
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	http2 "ki.com/clean-arc-example/src/http"
+	mongo2 "ki.com/clean-arc-example/src/mongo"
 
 	"ki.com/clean-arc-example/src"
 )
@@ -47,9 +49,9 @@ func main() {
 	db := client.Database(dbName)
 
 	// ---- Wire repo → usecase → http ----
-	repo := src.NewBudgetMongo(db, collName)
+	repo := mongo2.NewBudgetMongo(db, collName)
 	uc := src.NewUsecase(repo)
-	httpHandler := src.NewBudgetHTTP(uc)
+	httpHandler := http2.NewBudgetHTTP(uc)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/budgets", httpHandler.GetAllBudgets)

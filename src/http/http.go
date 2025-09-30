@@ -1,17 +1,24 @@
-package src
+package http
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"time"
+
+	"ki.com/clean-arc-example/src"
 )
 
 type BudgetHTTP struct {
-	uc *Usecase
+	uc BudgerUsecase
 }
 
-func NewBudgetHTTP(uc *Usecase) *BudgetHTTP {
+type BudgerUsecase interface {
+	GetAllBudget(ctx context.Context, req src.GetAllBudgetRequest) (src.GetAllBudgetResponse, error)
+}
+
+func NewBudgetHTTP(uc *src.Usecase) *BudgetHTTP {
 	return &BudgetHTTP{uc: uc}
 }
 
@@ -30,7 +37,7 @@ func (h *BudgetHTTP) GetAllBudgets(w http.ResponseWriter, r *http.Request) {
 	// ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
 	// defer cancel()
 
-	resp, err := h.uc.GetAllBudget(ctx, GetAllBudgetRequest{})
+	resp, err := h.uc.GetAllBudget(ctx, src.GetAllBudgetRequest{})
 	if err != nil {
 		// Map known errors to sensible HTTP status codes
 		switch {
@@ -53,8 +60,8 @@ func (h *BudgetHTTP) GetAllBudgets(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	// Optional: Add a response timestamp
 	type out struct {
-		Budgets   []Budget  `json:"budgets"`
-		Timestamp time.Time `json:"timestamp"`
+		Budgets   []src.Budget `json:"budgets"`
+		Timestamp time.Time    `json:"timestamp"`
 	}
 	_ = json.NewEncoder(w).Encode(out{
 		Budgets:   resp.Budgets,

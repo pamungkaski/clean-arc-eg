@@ -1,4 +1,4 @@
-package src
+package mongo
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"ki.com/clean-arc-example/src"
 )
 
 // Mongo DAO shape (matches collection)
@@ -19,8 +20,8 @@ type mongoBudget struct {
 	LastUpdated time.Time          `bson:"last_updated"`
 }
 
-func (m mongoBudget) toUsecaseBudget() Budget {
-	return Budget{
+func (m mongoBudget) toUsecaseBudget() src.Budget {
+	return src.Budget{
 		ID:          m.ID.Hex(), // if usecase.Budget expects string IDs
 		Name:        m.Name,
 		Amount:      m.Amount,
@@ -37,7 +38,7 @@ func NewBudgetMongo(db *mongo.Database, collectionName string) *BudgetMongo {
 	return &BudgetMongo{coll: db.Collection(collectionName)}
 }
 
-func (b *BudgetMongo) GetAllBudget(ctx context.Context) ([]Budget, error) {
+func (b *BudgetMongo) GetAllBudget(ctx context.Context) ([]src.Budget, error) {
 	if b.coll == nil {
 		return nil, mongo.ErrClientDisconnected
 	}
@@ -62,7 +63,7 @@ func (b *BudgetMongo) GetAllBudget(ctx context.Context) ([]Budget, error) {
 		return nil, err
 	}
 
-	out := make([]Budget, 0, len(raws))
+	out := make([]src.Budget, 0, len(raws))
 	for _, r := range raws {
 		out = append(out, r.toUsecaseBudget())
 	}
